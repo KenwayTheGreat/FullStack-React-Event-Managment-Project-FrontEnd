@@ -58,8 +58,8 @@ export default class EventsPage extends Component {
 
     const reqBody = {
       query: `
-        mutation {
-          createEvent(eventInput: {title: "${title}", description: "${description}",price: ${price}, date: "${dateTime}"}){
+        mutation CreateEvent($title: String!, $desc: String!, $price: Float!, $date: String!) {
+          createEvent(eventInput: {title: $title, description: $desc, price: $price, date: $date}){
             _id
             title
             description
@@ -68,6 +68,12 @@ export default class EventsPage extends Component {
           }
         }
       `,
+      variables: {
+        title: title,
+        desc: description,
+        price: price,
+        date: dateTime,
+      },
     };
 
     const token = this.context.token;
@@ -168,14 +174,17 @@ export default class EventsPage extends Component {
     }
     const reqBody = {
       query: `
-        mutation {
-          bookEvent(eventId: "${this.state.selectedEvent._id}") {
+        mutation BookEvent($id: ID!) {
+          bookEvent(eventId: $id) {
             _id
             createdAt
             updatedAt
           }
         }
       `,
+      variables: {
+        id: this.state.selectedEvent._id,
+      },
     };
 
     fetch("http://localhost:8000/graphql", {
@@ -183,7 +192,7 @@ export default class EventsPage extends Component {
       body: JSON.stringify(reqBody),
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer" + this.context.token,
+        Authorization: "Bearer " + this.context.token,
       },
     })
       .then((res) => {
@@ -254,8 +263,8 @@ export default class EventsPage extends Component {
             <h1>{this.state.selectedEvent.title}</h1>
 
             <h2>
-              ${this.state.selectedEvent.price} -
-              {" "}{new Date(this.state.selectedEvent.date).toLocaleDateString(
+              ${this.state.selectedEvent.price} -{" "}
+              {new Date(this.state.selectedEvent.date).toLocaleDateString(
                 "de-DE"
               )}
             </h2>
